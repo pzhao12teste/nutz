@@ -35,11 +35,11 @@ import org.nutz.mapl.MaplConvert;
 public class ObjConvertImpl implements MaplConvert {
 
     // 路径
-    protected Stack<String> path = new Stack<String>();
+    Stack<String> path = new Stack<String>();
     // 对象缓存
-    protected Context context;
+    Context context;
 
-    protected Type type;
+    private Type type;
 
     public ObjConvertImpl(Type type) {
         this.type = type;
@@ -65,14 +65,14 @@ public class ObjConvertImpl implements MaplConvert {
         if (type == null)
             return model;
         // obj是基本数据类型或String
-        if (!(model instanceof Map) && !(model instanceof Iterable)) {
+        if (!(model instanceof Map) && !(model instanceof List)) {
             return Castors.me().castTo(model, Lang.getTypeClass(type));
         }
 
         return inject(model, type);
     }
 
-    public Object inject(Object model, Type type) {
+    Object inject(Object model, Type type) {
         if (model == null) {
             return null;
         }

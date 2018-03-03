@@ -387,13 +387,7 @@ public class NutIoc implements Ioc2 {
             if (op.getObj() != null && klass.isAssignableFrom(op.getObj().getClass()))
                 names.add(name);
         }
-        LinkedHashSet<String> re = new LinkedHashSet<String>();
-        for (String name : names) {
-            if (Strings.isBlank(name) || "null".equals(name))
-                continue;
-            re.add(name);
-        }
-        return re.toArray(new String[re.size()]);
+        return new LinkedHashSet<String>(names).toArray(new String[names.size()]);
     }
     
     public String[] getNamesByAnnotation(Class<? extends Annotation> klass) {
@@ -412,13 +406,7 @@ public class NutIoc implements Ioc2 {
             if (op.getObj() != null && klass.getAnnotation(klass) != null)
                 names.add(name);
         }
-        LinkedHashSet<String> re = new LinkedHashSet<String>();
-        for (String name : names) {
-            if (Strings.isBlank(name) || "null".equals(name))
-                continue;
-            re.add(name);
-        }
-        return re.toArray(new String[re.size()]);
+        return new LinkedHashSet<String>(names).toArray(new String[names.size()]);
     }
 
     public <K> K getByType(Class<K> klass) {

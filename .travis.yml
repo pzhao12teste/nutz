@@ -1,43 +1,68 @@
-sudo: false
-language: java
-script: mvn clean source:jar cobertura:cobertura package
-jdk:
-  - oraclejdk8
-# whitelist
+addons:
+  coverity_scan:
+    branch_pattern: coverity_scan
+    build_command: mvn -DskipTests=true compile
+    build_command_prepend: mvn clean
+    notification_email: wendal1985@gmail.com
+    project:
+      name: nutzam/nutz
+  postgresql: '9.3'
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+before_cache:
+- rm -rf $HOME/CACHE; find $TRAVIS_BUILD_DIR -name .ekstazi | while read line; do
+  du -sh $line;         DIR=$(dirname $HOME/CACHE$line); mkdir -p $DIR; cp -r $line
+  $DIR; done
+- echo CACHESIZE $(du -sk $HOME/CACHE)
+- cp /tmp/classpathFile $HOME/CACHE/classpathFile
+before_install:
+- if [ "$TRAVIS_OS_NAME" == "osx" ];        then sed -i '' 's/<gib.enabled>true/<gib.enabled>false/'
+  $TRAVIS_BUILD_DIR/pom.xml;        else sed -i 's/<gib.enabled>true/<gib.enabled>false/'
+  $TRAVIS_BUILD_DIR/pom.xml;        fi
+- find $HOME/CACHE -name .ekstazi | while read line; do du -sh $line;         DIR=$(dirname
+  ${line#$HOME/CACHE}); if [[ -d ${DIR#.ekstazi/} ]]; then cp -r $line $DIR; fi; done
+- export TZ=Asia/Shanghai
+before_script:
+- find $TRAVIS_BUILD_DIR -name .ekstazi | while read line; do rm -rf $line; done
+- find $HOME/CACHE -name .ekstazi | while read line; do du -sh $line;         DIR=$(dirname
+  ${line#$HOME/CACHE}); if [[ -d ${DIR#.ekstazi/} ]]; then cp -r $line $DIR; fi; done
+- psql -c 'create database nutztest;' -U postgres
+- cp ./tools/travis-ci/nutz-test.properties ./test/
+- cp ./tools/travis-ci/log4j.properties ./test/
+- if [ "$TRAVIS_OS_NAME" == "osx" ];    then sed -i '' 's/<gib.enabled>false/<gib.enabled>true/'
+  $TRAVIS_BUILD_DIR/pom.xml;    else sed -i 's/<gib.enabled>false/<gib.enabled>true/'
+  $TRAVIS_BUILD_DIR/pom.xml;    fi
+- if [[ -e $HOME/CACHE/classpathFile ]]; then cp $HOME/CACHE/classpathFile /tmp/;
+  fi
 branches:
   only:
-    - master
-    - coverity_scan
-before_script:
-  - psql -c 'create database nutztest;' -U postgres
-  - cp ./tools/travis-ci/nutz-test.properties ./test/
-  - cp ./tools/travis-ci/log4j.properties ./test/
-notifications:
-  email: false
-before_install:
-  - export TZ=Asia/Shanghai
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "E1z+6z9M4iTdAXZ2a1rYSrxfIOq6PkdXEMutAbIn/bp1e/Qvb5IVoAS0heo7SPwcIlHlN8mDiOtKdzbcu9q8VaftfHwFjff6AoKyuWtfDqE1ecTfflebWwzmtXKJmT5uxBPvu442dS4sIc2zx3zjvnxMsSmvrdSwbMxwdbAKvDc="
-   - SONATYPE_USERNAME=wendal
-   - secure : "BaXmGpodQiuU23YgtUThWCHf7Vig2Gv3UfpBjo3FATgn1LRF3i2IOgY5sCSi+XJYqx+05fVNdwVYccxS/9UfhPNSqQuslIwgmg0y9f26DYaX2gaW+jk8padhZRkeBrY3fO+g9nQuu+Epgqi0ITru6+IjH932O0m1JR7iJu2RNhs="
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - master
+  - coverity_scan
+cache:
+  directories:
+  - $HOME/CACHE
+  - $HOME/CACHE
 deploy:
   provider: script
-  script: "mvn -Dmaven.test.skip=true clean compile source:jar javadoc:jar deploy --settings mvn_settings.xml"
-  skip_cleanup: true
-  on:
-    tags: false
+  true:
     branch: master
-addons:
-  postgresql: "9.3"
-  coverity_scan:
-    project:
-      name: "nutzam/nutz"
-    notification_email: wendal1985@gmail.com
-    build_command_prepend: "mvn clean"
-    build_command:   "mvn -DskipTests=true compile"
-    branch_pattern: coverity_scan
+    tags: false
+  script: mvn -Dmaven.test.skip=true clean compile source:jar javadoc:jar deploy --settings
+    mvn_settings.xml
+  skip_cleanup: true
+env:
+  global:
+  - secure: E1z+6z9M4iTdAXZ2a1rYSrxfIOq6PkdXEMutAbIn/bp1e/Qvb5IVoAS0heo7SPwcIlHlN8mDiOtKdzbcu9q8VaftfHwFjff6AoKyuWtfDqE1ecTfflebWwzmtXKJmT5uxBPvu442dS4sIc2zx3zjvnxMsSmvrdSwbMxwdbAKvDc=
+  - SONATYPE_USERNAME=wendal
+  - secure: BaXmGpodQiuU23YgtUThWCHf7Vig2Gv3UfpBjo3FATgn1LRF3i2IOgY5sCSi+XJYqx+05fVNdwVYccxS/9UfhPNSqQuslIwgmg0y9f26DYaX2gaW+jk8padhZRkeBrY3fO+g9nQuu+Epgqi0ITru6+IjH932O0m1JR7iJu2RNhs=
+jdk:
+- oraclejdk8
+language: java
+script:
+- touch /tmp/NOW
+- echo GIBSTUDYSTART $(date)
+- mvn clean source:jar cobertura:cobertura package
+- echo GIBSTUDYEND $(date)
+- cd $TRAVIS_BUILD_DIR
+- echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
+sudo: false

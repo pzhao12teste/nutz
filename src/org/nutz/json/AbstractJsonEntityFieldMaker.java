@@ -12,7 +12,7 @@ public abstract class AbstractJsonEntityFieldMaker implements JsonEntityFieldMak
 
     @Override
     public List<JsonEntityField> make(Mirror<?> mirror) {
-        Field[] flds = mirror.getFields(true, false);
+        Field[] flds = mirror.getFields();
         List<JsonEntityField> fields = new ArrayList<JsonEntityField>(flds.length);
         for (Field fld : flds) {
             JsonEntityField ef = make(mirror, fld);

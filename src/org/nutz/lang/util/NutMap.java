@@ -27,6 +27,7 @@ import org.nutz.lang.born.Borning;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
+@SuppressWarnings("serial")
 public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
 
     public static NutMap WRAP(Map<String, Object> map) {
@@ -114,10 +115,11 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
         if (keys.length == 0)
             return new NutMap();
         NutMap re = new NutMap();
-        for (String key : keys) {
-            Object val = this.get(key);
-            if (null != val)
-                re.put(key, val);
+        for (Map.Entry<String, Object> en : this.entrySet()) {
+            String key = en.getKey();
+            if (Lang.contains(keys, key)) {
+                re.put(key, en.getValue());
+            }
         }
         return re;
     }
@@ -895,7 +897,7 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
 
             final String s = mtc.toString();
             if (s.startsWith("^")) {
-                regex = Regex.getPattern(s);
+                regex = Pattern.compile(s);
             }
             // 不是正则表达式，那么精确匹配字符串
             else {

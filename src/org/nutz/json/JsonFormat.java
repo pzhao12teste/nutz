@@ -140,8 +140,6 @@ public class JsonFormat extends NutMap {
         public static String nullBooleanAsFalse = "nullBooleanAsFalse";
         public static String nullNumberAsZero = "nullNumberAsZero";
         public static String timeZone = "timeZone";
-        public static String locale = "locale";
-        public static String dateFormatRaw = "dateFormatRaw";
     }
 
     @JsonField(ignore = true)
@@ -382,7 +380,6 @@ public class JsonFormat extends NutMap {
             put(Function.dateFormat, new TimeStampDateFormat());
         } else {
             put(Function.dateFormat, new SimpleDateFormat(df));
-            put(Function.dateFormatRaw, df);
         }
         return this;
     }
@@ -515,18 +512,5 @@ public class JsonFormat extends NutMap {
     public JsonFormat setNullNumberAsZero(boolean nullNumberAsZero) {
         put(Function.nullNumberAsZero, nullNumberAsZero);
         return this;
-    }
-    
-    public JsonFormat setLocale(String locale) {
-        put(Function.locale, locale);
-        return this;
-    }
-    
-    public String getLocale() {
-        return getString(Function.locale);
-    }
-    
-    public String getDateFormatRaw() {
-        return getString(Function.dateFormatRaw);
     }
 }

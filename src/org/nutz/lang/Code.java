@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.nutz.lang.util.Regex;
-
 /**
  * 一个统计代码的工具
  * 
@@ -192,7 +190,7 @@ public class Code {
                     if (line.endsWith(conf.multiLineCommentEnd)) {
                         comment = false;
                     }
-                } else if (Regex.match(conf.emptyLinePattern, line)) {
+                } else if (line.matches(conf.emptyLinePattern)) {
                     // 空白行(多行注解内的空白行不算在内)
                     whiteLines++;
                 } else if (line.startsWith(conf.singleLineCommentStart)

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
@@ -28,7 +27,6 @@ public class Response {
             this.cookie = new Cookie();
             this.cookie.afterResponse(null, conn, null); // 解决多个Set-Cookie丢失的问题
         }
-        encode = getEncodeType();
     }
 
     private Header header;
@@ -38,7 +36,6 @@ public class Response {
     private int status;
     private String detail;
     private String content;
-    private String encode;
 
     public String getProtocal() {
         return protocal;
@@ -76,9 +73,9 @@ public class Response {
      * 根据Http头的Content-Type获取网页的编码类型，如果没有设的话则返回null
      */
     public String getEncodeType() {
-        String contentType = header.get("Content-Type");
-        if (null != contentType) {
-            for (String tmp : contentType.split(";")) {
+        String contextType = header.get("Content-Type");
+        if (null != contextType) {
+            for (String tmp : contextType.split(";")) {
                 if (tmp == null)
                     continue;
                 tmp = tmp.trim();
@@ -86,15 +83,7 @@ public class Response {
                     return Strings.trim(tmp.substring(8)).trim();
             }
         }
-        return Encoding.UTF8;
-    }
-    
-    public void setEncode(String encode) {
-        this.encode = encode;
-    }
-    
-    public String getEncode() {
-        return encode;
+        return null;
     }
 
     public InputStream getStream() {
@@ -110,8 +99,6 @@ public class Response {
     }
 
     public Reader getReader(String charsetName) {
-        if (content != null)
-            return new StringReader(charsetName);
         return new InputStreamReader(getStream(), Charset.forName(charsetName));
     }
 
@@ -152,16 +139,15 @@ public class Response {
     }
 
     public String getContent() {
-        return getContent(encode);
+        if (Strings.isBlank(content)) {
+            content = getContent(null);
+        }
+        return content;
     }
 
     public String getContent(String charsetName) {
-        if (content == null) {
-            if (charsetName == null)
-                content = Streams.readAndClose(getReader(encode));
-            else
-                content = Streams.readAndClose(getReader(charsetName));
-        }
-        return content;
+        if (charsetName == null)
+            return Streams.readAndClose(getReader());
+        return Streams.readAndClose(getReader(charsetName));
     }
 }

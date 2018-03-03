@@ -3,6 +3,7 @@ package org.nutz.ioc.json;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.Nutzs;
 import org.nutz.conf.NutConf;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.IocLoader;

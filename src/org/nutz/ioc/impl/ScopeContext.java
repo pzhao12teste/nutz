@@ -2,7 +2,6 @@ package org.nutz.ioc.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,8 +127,6 @@ public class ScopeContext implements IocContext {
     }
 
     public Set<String> names() {
-        if (objs == null)
-            return new HashSet<String>();
         return objs.keySet();
     }
 }

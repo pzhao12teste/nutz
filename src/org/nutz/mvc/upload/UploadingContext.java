@@ -7,7 +7,6 @@ import org.nutz.filepool.NutFilePool;
 import org.nutz.filepool.SynchronizedFilePool;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
@@ -144,7 +143,7 @@ public class UploadingContext {
                 || "\"\"".equals(name)) //用户不选择文件时,文件名会是"" 两个双引号
             return true;
         if (nameFilterPattern == null)
-        	return Regex.match(nameFilter, name.toLowerCase());
+        	return Pattern.matches(nameFilter, name.toLowerCase());
         return nameFilterPattern.matcher(name.toLowerCase()).find();
     }
 
@@ -160,6 +159,6 @@ public class UploadingContext {
     public boolean isContentTypeAccepted(String contentType) {
         if (null == contentTypeFilter || Strings.isBlank(contentType))
             return true;
-        return Regex.match(contentTypeFilter, contentType.toLowerCase());
+        return Pattern.matches(contentTypeFilter, contentType.toLowerCase());
     }
 }
